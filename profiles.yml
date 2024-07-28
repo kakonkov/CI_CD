@@ -1,0 +1,14 @@
+CI_CD:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USERNAME') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "dbt_role"
+      database: "dbt_db"
+      warehouse: "dbt_wh"
+      schema: "dbt_schema"
+      threads: 4
+      client_session_keep_alive: false
