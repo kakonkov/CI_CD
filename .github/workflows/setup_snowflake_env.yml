@@ -26,11 +26,17 @@ jobs:
           curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/windows_x86_64/snowsql-1.2.29-windows_x86_64.msi
           msiexec /i snowsql-1.2.29-windows_x86_64.msi /quiet /norestart
 
-      - name: Add SnowSQL to PATH
+      - name: Locate SnowSQL
+        id: locate-snowsql
         run: |
-          $env:Path += ";C:\Program Files\Snowflake SnowSQL\bin"
-          Write-Host "Path is now: $env:Path"
+          $snowsqlPath = "C:\Program Files\Snowflake SnowSQL\bin\snowsql.exe"
+          if (Test-Path $snowsqlPath) {
+            echo "##[set-output name=snowsql_path;]$snowsqlPath"
+          } else {
+            Write-Error "SnowSQL not found"
+          }
 
       - name: Execute Snowflake Setup Script
         run: |
-          snowsql -a $env:SNOWSQL_ACCOUNT -u $env:SNOWSQL_USER -p $env:SNOWSQL_PWD -f scripts/setup_snowflake_env.sql -o friendly=false
+          $snowsqlPath = "${{ steps.locate-snowsql.outputs.snowsql_path }}"
+          & $snowsqlPath -a $env:SNOWSQL_ACCOUNT -u $env:SNOWSQL_USER -p $env:SNOWSQL_PWD -f scripts/setup_snowflake_env.sql -o friendly=false
