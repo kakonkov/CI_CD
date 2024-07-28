@@ -13,9 +13,9 @@ jobs:
     runs-on: windows-latest
 
     env:
-      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-      SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+      SNOWSQL_PWD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWSQL_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWSQL_USER: ${{ secrets.SNOWFLAKE_USERNAME }}
 
     steps:
       - name: Checkout repository
@@ -44,30 +44,6 @@ jobs:
       - name: Install dbt
         run: pip install dbt-snowflake
 
-      - name: Debug Secrets
-        run: |
-          echo "SNOWFLAKE_ACCOUNT: $env:SNOWFLAKE_ACCOUNT"
-          echo "SNOWFLAKE_USERNAME: $env:SNOWFLAKE_USERNAME"
-        shell: powershell
-
-      - name: Create .dbt directory and add profiles.yml
-        run: |
-          mkdir -p C:\Users\runneradmin\.dbt
-          echo "CI_CD:
-            target: dev
-            outputs:
-              dev:
-                type: snowflake
-                account: '{{ env_var("SNOWFLAKE_ACCOUNT") }}'
-                user: '{{ env_var("SNOWFLAKE_USERNAME") }}'
-                password: '{{ env_var("SNOWFLAKE_PASSWORD") }}'
-                role: 'YOUR_ROLE_HERE'
-                database: 'YOUR_DATABASE_HERE'
-                warehouse: 'YOUR_WAREHOUSE_HERE'
-                schema: 'YOUR_SCHEMA_HERE'
-                threads: 4
-                client_session_keep_alive: false" > C:\Users\runneradmin\.dbt\profiles.yml
-
       - name: Run dbt debug
         env:
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
@@ -78,5 +54,4 @@ jobs:
       - name: Execute Snowflake Setup Script
         run: |
           $snowsqlPath = "${{ steps.locate-snowsql.outputs.snowsql_path }}"
-          & $snowsqlPath -a $env:SNOWFLAKE_ACCOUNT -u $env:SNOWFLAKE_USERNAME -p $env:SNOWFLAKE_PASSWORD -f scripts/setup_snowflake_env.sql -o friendly=false
-        shell: powershell
+          & $snowsqlPath -a $env:SNOWFLAKE_ACCOUNT -u $env:SNOWFLAKE_USER -p $env:SNOWFLAKE_PWD -f scripts/setup_snowflake_env.sql -o friendly=false
