@@ -2,7 +2,7 @@
 use role securityadmin;
 
 create role if not exists dbt_role;
-grant role dbt_role to user 'YOUR_USER_HERE';
+grant role dbt_role to user kirillkonkov2023;
 
 use role sysadmin;
 
