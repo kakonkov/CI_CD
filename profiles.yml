@@ -3,7 +3,7 @@ CI_CD:
   outputs:
     dev:
       type: snowflake
-      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      account: "ryedgjb-qf09437"
       user: "{{ env_var('SNOWFLAKE_USERNAME') }}"
       password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
       role: "dbt_role"
