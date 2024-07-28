@@ -12,7 +12,7 @@ jobs:
   setup_snowflake:
     runs-on: windows-latest
 
-    env: # only these are needed for this first workflow
+    env:
       SNOWSQL_PWD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWSQL_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWSQL_USER: ${{ secrets.SNOWFLAKE_USERNAME }}
@@ -34,9 +34,23 @@ jobs:
             echo "##[set-output name=snowsql_path;]$snowsqlPath"
           } else {
             Write-Error "SnowSQL not found"
-          }
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
+      - name: Install dbt
+        run: pip install dbt-snowflake
+
+      - name: Run dbt debug
+        env:
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+        run: dbt debug
 
       - name: Execute Snowflake Setup Script
         run: |
           $snowsqlPath = "${{ steps.locate-snowsql.outputs.snowsql_path }}"
-          & $snowsqlPath -a $env:SNOWSQL_ACCOUNT -u $env:SNOWSQL_USER -p $env:SNOWSQL_PWD -f scripts/setup_snowflake_env.sql -o friendly=false
+          & $snowsqlPath -a $env:SNOWFLAKE_ACCOUNT -u $env:SNOWFLAKE_USER -p $env:SNOWFLAKE_PWD -f scripts/setup_snowflake_env.sql -o friendly=false
